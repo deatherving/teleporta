@@ -1,0 +1,80 @@
+# Local quickstart for Teleporta. Not a production deployment.
+# Run from the repo root:  docker compose -f examples/docker-compose.yml up --build
+#
+# Then create a link and try it:
+#   docker compose -f examples/docker-compose.yml exec postgres \
+#     psql -U teleporta -d teleporta -c \
+#     "INSERT INTO links (path, route_type, web_fallback_url, ios_store_url, android_store_url) \
+#      VALUES ('/v/123456', 'vehicle', 'https://example.com/v/123456', \
+#      'https://apps.apple.com/app/id123456789', \
+#      'https://play.google.com/store/apps/details?id=com.example.app');"
+#   curl -i http://localhost:8080/v/123456
+
+services:
+  teleporta:
+    build:
+      context: ..
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      TELEPORTA_SERVER_HOST: "0.0.0.0"
+      TELEPORTA_SERVER_PORT: "8080"
+      TELEPORTA_PUBLIC_BASE_URL: "http://localhost:8080"
+
+      # Database (discrete password auth).
+      TELEPORTA_DATABASE_AUTH_MODE: "password"
+      TELEPORTA_DATABASE_HOST: "postgres"
+      TELEPORTA_DATABASE_PORT: "5432"
+      TELEPORTA_DATABASE_NAME: "teleporta"
+      TELEPORTA_DATABASE_USER: "teleporta"
+      TELEPORTA_DATABASE_PASSWORD: "password"
+      TELEPORTA_DATABASE_SSL_MODE: "disable"
+
+      # Redis.
+      TELEPORTA_REDIS_URL: "redis://redis:6379"
+      TELEPORTA_REDIS_KEY_PREFIX: "teleporta"
+
+      # App association (optional; enables the /.well-known endpoints).
+      TELEPORTA_IOS_TEAM_ID: "ABCDE12345"
+      TELEPORTA_IOS_BUNDLE_ID: "com.example.app"
+      TELEPORTA_IOS_APP_STORE_URL: "https://apps.apple.com/app/id123456789"
+      TELEPORTA_ANDROID_PACKAGE_NAME: "com.example.app"
+      TELEPORTA_ANDROID_SHA256_CERT_FINGERPRINTS: "AA:BB:CC:DD:EE:FF"
+      TELEPORTA_ANDROID_PLAY_STORE_URL: "https://play.google.com/store/apps/details?id=com.example.app"
+
+      # Privacy.
+      TELEPORTA_PRIVACY_STORE_RAW_IP: "false"
+      TELEPORTA_PRIVACY_HASH_IP: "true"
+      TELEPORTA_PRIVACY_IP_HASH_SALT: "change-me-please"
+
+      RUST_LOG: "teleporta_server=info,tower_http=info"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
+
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: teleporta
+      POSTGRES_USER: teleporta
+      POSTGRES_PASSWORD: password
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U teleporta -d teleporta"]
+      interval: 2s
+      timeout: 3s
+      retries: 20
+    ports:
+      - "5432:5432"
+    volumes:
+      - teleporta_pg:/var/lib/postgresql/data
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+
+volumes:
+  teleporta_pg:
