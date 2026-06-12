@@ -16,9 +16,9 @@ RUN apt-get update \
 # Workspace + member manifest must be present for cargo to resolve the
 # workspace.
 COPY Cargo.toml Cargo.lock* ./
-COPY crates/teleporta/Cargo.toml crates/teleporta/Cargo.toml
-COPY crates/teleporta/src        crates/teleporta/src
-COPY migrations migrations
+COPY crates/teleporta/Cargo.toml   crates/teleporta/Cargo.toml
+COPY crates/teleporta/src          crates/teleporta/src
+COPY crates/teleporta/migrations   crates/teleporta/migrations
 
 RUN --mount=type=cache,target=/usr/local/cargo/registry \
     --mount=type=cache,target=/build/target \

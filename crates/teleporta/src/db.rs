@@ -168,8 +168,8 @@ async fn run_token_refresher(
     }
 }
 
-/// Run embedded migrations from the workspace `migrations/` directory.
+/// Run embedded migrations from the crate's `migrations/` directory.
 pub async fn migrate(pool: &PgPool) -> anyhow::Result<()> {
-    sqlx::migrate!("../../migrations").run(pool).await?;
+    sqlx::migrate!("./migrations").run(pool).await?;
     Ok(())
 }

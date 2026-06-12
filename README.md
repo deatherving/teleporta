@@ -122,7 +122,7 @@ and `metadata` as opaque — it does not know `v` means "vehicle". Each link has
 | `metadata` | Opaque JSON, stored and returned for app use. |
 | `is_active`, `expires_at` | Inactive or expired links resolve as "not found". |
 
-The schema lives in [`migrations/`](migrations): `links` (source of truth) and
+The schema lives in [`crates/teleporta/migrations/`](crates/teleporta/migrations): `links` (source of truth) and
 `link_clicks` (operational log; `link_id` is nullable so clicks on unknown
 paths are still recorded).
 
