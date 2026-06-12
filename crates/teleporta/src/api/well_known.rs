@@ -10,7 +10,7 @@ use axum::{
     Json,
 };
 
-use teleporta_core::well_known;
+use crate::well_known;
 
 use crate::state::SharedState;
 

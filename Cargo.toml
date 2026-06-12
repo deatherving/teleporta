@@ -1,8 +1,7 @@
 [workspace]
 resolver = "2"
 members = [
-    "crates/teleporta-core",
-    "crates/teleporta-server",
+    "crates/teleporta",
 ]
 
 [workspace.package]
@@ -20,8 +19,6 @@ uuid = { version = "1", features = ["serde", "v4"] }
 chrono = { version = "0.4", features = ["serde"] }
 tracing = "0.1"
 anyhow = "1"
-
-teleporta-core = { path = "crates/teleporta-core" }
 
 [profile.release]
 lto = "thin"

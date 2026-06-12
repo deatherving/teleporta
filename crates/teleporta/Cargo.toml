@@ -1,6 +1,6 @@
 [package]
-name = "teleporta-server"
-description = "HTTP server for Teleporta: app-link router, fallback page, verification endpoints, link resolution, caching, and operational click logging."
+name = "teleporta"
+description = "Self-hosted mobile app link router: routes HTTPS links to installed apps via iOS Universal Links and Android App Links, with App Store / Play Store / web fallback, Redis caching, and operational click logging."
 version.workspace = true
 edition.workspace = true
 license.workspace = true
@@ -8,13 +8,19 @@ authors.workspace = true
 repository.workspace = true
 rust-version.workspace = true
 readme = "README.md"
+homepage = "https://github.com/deatherving/teleporta"
+keywords = ["universal-links", "app-links", "deep-linking", "deeplink", "router"]
+categories = ["web-programming::http-server", "command-line-utilities"]
 
 [[bin]]
-name = "teleporta-server"
+name = "teleporta"
 path = "src/main.rs"
 
+[lib]
+name = "teleporta"
+path = "src/lib.rs"
+
 [dependencies]
-teleporta-core.workspace = true
 anyhow.workspace = true
 serde.workspace = true
 serde_json.workspace = true

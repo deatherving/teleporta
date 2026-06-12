@@ -17,7 +17,7 @@ use std::time::Duration;
 
 use redis::aio::ConnectionManager;
 use redis::AsyncCommands;
-use teleporta_core::Link;
+use crate::Link;
 
 use crate::config::RedisConfig;
 

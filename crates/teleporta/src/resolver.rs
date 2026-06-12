@@ -14,14 +14,14 @@ use serde_json::Value;
 use sqlx::PgPool;
 use uuid::Uuid;
 
-use teleporta_core::Link;
+use crate::Link;
 
 use crate::cache::Cache;
 use crate::error::AppResult;
 
 /// Database row shape for the `links` table. Kept separate from
-/// [`teleporta_core::Link`] so the core crate stays free of any sqlx
-/// dependency; the columns are identical and the conversion is mechanical.
+/// [`crate::Link`] so the domain model stays free of any sqlx dependency;
+/// the columns are identical and the conversion is mechanical.
 #[derive(sqlx::FromRow)]
 struct LinkRow {
     id: Uuid,

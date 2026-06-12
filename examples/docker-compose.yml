@@ -48,7 +48,7 @@ services:
       TELEPORTA_PRIVACY_HASH_IP: "true"
       TELEPORTA_PRIVACY_IP_HASH_SALT: "change-me-please"
 
-      RUST_LOG: "teleporta_server=info,tower_http=info"
+      RUST_LOG: "teleporta=info,tower_http=info"
     depends_on:
       postgres:
         condition: service_healthy

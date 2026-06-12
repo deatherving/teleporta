@@ -3,9 +3,9 @@
 //! When the app is installed, the OS opens it via Universal Links / App Links
 //! *before* this page is ever shown. This page is therefore the
 //! not-installed path: it explains what happened and offers the store (or web)
-//! destination chosen by [`teleporta_core::decide`].
+//! destination chosen by [`crate::decide`].
 
-use teleporta_core::{Decision, DestinationType, Link, Platform};
+use crate::{Decision, DestinationType, Link, Platform};
 
 use crate::config::Config;
 

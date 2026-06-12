@@ -15,7 +15,7 @@ use axum::{
 use chrono::Utc;
 use serde_json::{Map, Value};
 
-use teleporta_core::{decide, detect_platform, normalize_path, DestinationType, Platform};
+use crate::{decide, detect_platform, normalize_path, DestinationType, Platform};
 
 use crate::click_log::{self, ClickContext};
 use crate::error::AppResult;

@@ -15,7 +15,7 @@ use serde_json::Value;
 use sha2::{Digest, Sha256};
 use uuid::Uuid;
 
-use teleporta_core::{DestinationType, Platform};
+use crate::{DestinationType, Platform};
 
 use crate::config::PrivacyConfig;
 use crate::state::SharedState;

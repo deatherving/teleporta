@@ -48,14 +48,16 @@ Client ──HTTPS──> Teleporta (axum)
                      └── /.well-known apple-app-site-association, assetlinks.json
 ```
 
-Two crates:
+A single crate, organized in two layers:
 
-- **`teleporta-core`** — framework-independent logic: link model, path
-  normalization, platform detection, routing decision, and verification
-  document (AASA / assetlinks) generation. Fully unit-tested, no I/O.
-- **`teleporta-server`** — the axum HTTP server: config, Postgres (password +
-  AWS RDS/Aurora IAM auth), Redis cache, resolver, fallback rendering, and
-  click logging.
+- **Domain logic** (`link`, `platform`, `decision`, `well_known`) —
+  framework-independent and free of I/O: the link model, path normalization,
+  platform detection, routing decision, and verification document (AASA /
+  assetlinks) generation. Fully unit-tested.
+- **Server** (`api`, `cache`, `config`, `db`, `resolver`, `fallback`,
+  `click_log`, …) — the axum HTTP server: config, Postgres (password + AWS
+  RDS/Aurora IAM auth), Redis cache, resolver, fallback rendering, and click
+  logging.
 
 ## Quickstart (Docker Compose)
 
@@ -91,7 +93,7 @@ export TELEPORTA_DATABASE_PASSWORD=password
 export TELEPORTA_DATABASE_SSL_MODE=disable
 export TELEPORTA_REDIS_URL=redis://127.0.0.1:6379
 
-cargo run --bin teleporta-server
+cargo run --bin teleporta
 ```
 
 Migrations are embedded in the binary and run automatically at startup.
@@ -307,7 +309,7 @@ e.g. `DELETE FROM link_clicks WHERE clicked_at < now() - interval '90 days'`.
 
 ```bash
 cargo test    # unit tests, no external services required
-cargo build   # builds both crates
+cargo build   # builds the teleporta binary
 ```
 
 ## License

@@ -1,7 +1,23 @@
-//! Teleporta server: HTTP app-link router with PostgreSQL source-of-truth,
-//! Redis cache, app-link verification endpoints, fallback rendering, and
-//! operational click logging.
+//! Teleporta: a self-hosted mobile app link router.
+//!
+//! The crate is organized in two layers:
+//!
+//! * **Domain logic** (`link`, `platform`, `decision`, `well_known`) —
+//!   framework-independent and free of I/O. It can be reasoned about and
+//!   unit-tested in isolation: the link model and path normalization, the
+//!   user-agent based platform detection, the routing decision, and the
+//!   iOS/Android app-link verification documents.
+//! * **Server** (`api`, `cache`, `click_log`, `config`, `db`, `fallback`,
+//!   `resolver`, `state`) — the axum HTTP server and its infrastructure
+//!   (PostgreSQL, Redis, AWS RDS/Aurora IAM auth) that drives the domain logic.
 
+// Domain logic (framework-independent).
+pub mod decision;
+pub mod link;
+pub mod platform;
+pub mod well_known;
+
+// Server and infrastructure.
 pub mod api;
 pub mod cache;
 pub mod click_log;
@@ -13,6 +29,9 @@ pub mod resolver;
 pub mod state;
 
 pub use config::Config;
+pub use decision::{decide, Decision, DestinationType};
+pub use link::{normalize_path, Link};
+pub use platform::{detect_platform, Platform};
 
 use std::net::SocketAddr;
 use std::sync::Arc;
