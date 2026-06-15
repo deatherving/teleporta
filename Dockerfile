@@ -35,6 +35,6 @@ COPY --from=builder /usr/local/bin/teleporta /usr/local/bin/teleporta
 
 USER teleporta
 EXPOSE 8080
-ENV TELEPORTA_SERVER_HOST=0.0.0.0 \
-    TELEPORTA_SERVER_PORT=8080
+ENV TELEPORTA_HTTP_HOST=0.0.0.0 \
+    TELEPORTA_HTTP_PORT=8080
 ENTRYPOINT ["/usr/local/bin/teleporta"]

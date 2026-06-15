@@ -135,9 +135,14 @@ Misconfiguration fails loudly at startup.
 
 | Variable | Default | Notes |
 |----------|---------|-------|
-| `TELEPORTA_SERVER_HOST` | `0.0.0.0` | Bind host. |
-| `TELEPORTA_SERVER_PORT` | `8080` | Bind port. |
+| `TELEPORTA_HTTP_HOST` | `0.0.0.0` | Bind host. |
+| `TELEPORTA_HTTP_PORT` | `8080` | Bind port. |
 | `TELEPORTA_PUBLIC_BASE_URL` | `http://localhost:8080` | Public origin, used for absolute fallback URLs. |
+
+> The bind vars are `TELEPORTA_HTTP_*`, not `TELEPORTA_SERVER_*`, to avoid
+> colliding with the `{SERVICE}_PORT` variable Kubernetes injects for a Service
+> named `teleporta-server` (its value is `tcp://<clusterIP>:<port>`, which would
+> otherwise clobber the bind port and fail startup).
 
 ### iOS app association (optional — omit to disable the AASA endpoint)
 

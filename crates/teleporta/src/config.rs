@@ -142,8 +142,12 @@ pub struct IamDatabase {
 
 impl Config {
     pub fn from_env() -> anyhow::Result<Self> {
-        let host = env_or("TELEPORTA_SERVER_HOST", "0.0.0.0");
-        let port = parse_env("TELEPORTA_SERVER_PORT", 8080u16)?;
+        // Bind config lives under TELEPORTA_HTTP_*, not TELEPORTA_SERVER_*: a
+        // Kubernetes Service named `teleporta-server` injects the Docker-links var
+        // TELEPORTA_SERVER_PORT=tcp://<clusterIP>:<port>, which would clobber the
+        // bind port and fail u16 parsing at startup. Do not rename these back.
+        let host = env_or("TELEPORTA_HTTP_HOST", "0.0.0.0");
+        let port = parse_env("TELEPORTA_HTTP_PORT", 8080u16)?;
         let http_addr = format!("{host}:{port}");
 
         let public_base_url = env_or("TELEPORTA_PUBLIC_BASE_URL", "http://localhost:8080");
@@ -484,8 +488,8 @@ mod tests {
     use serial_test::serial;
 
     const VARS: &[&str] = &[
-        "TELEPORTA_SERVER_HOST",
-        "TELEPORTA_SERVER_PORT",
+        "TELEPORTA_HTTP_HOST",
+        "TELEPORTA_HTTP_PORT",
         "TELEPORTA_PUBLIC_BASE_URL",
         "TELEPORTA_IOS_TEAM_ID",
         "TELEPORTA_IOS_BUNDLE_ID",
