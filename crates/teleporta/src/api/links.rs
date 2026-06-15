@@ -10,7 +10,7 @@ use std::net::{IpAddr, SocketAddr};
 use axum::{
     extract::{ConnectInfo, Path, RawQuery, State},
     http::{HeaderMap, StatusCode},
-    response::{Html, IntoResponse},
+    response::{Html, IntoResponse, Redirect},
 };
 use chrono::Utc;
 use serde_json::{Map, Value};
@@ -64,9 +64,20 @@ async fn serve(
 
     let resolution = resolve(&state.pool, &state.cache, &path, Utc::now()).await?;
 
-    let (status, body) = match resolution {
+    let response = match resolution {
         Some(link) => {
-            let decision = decide(&link, platform);
+            // Fall back to the deployment-wide store URLs when the row has none,
+            // so a link routes to the store without its own per-row store URL.
+            let decision = decide(
+                &link,
+                platform,
+                state.config.ios.as_ref().and_then(|i| i.app_store_url.as_deref()),
+                state
+                    .config
+                    .android
+                    .as_ref()
+                    .and_then(|a| a.play_store_url.as_deref()),
+            );
             click_log::record(
                 state.clone(),
                 ClickContext {
@@ -82,8 +93,9 @@ async fn serve(
             );
             (
                 StatusCode::OK,
-                fallback::render_found(&state.config, &link, &decision),
+                Html(fallback::render_found(&state.config, &link, &decision)),
             )
+                .into_response()
         }
         None => {
             click_log::record(
@@ -99,14 +111,20 @@ async fn serve(
                     client_ip,
                 },
             );
-            (
-                StatusCode::NOT_FOUND,
-                fallback::render_not_found(&state.config, platform),
-            )
+            // An unresolved path goes to the configured canonical site when one
+            // is set; otherwise render the self-contained not-found page.
+            match state.config.fallback.home_url.as_deref() {
+                Some(url) => Redirect::to(url).into_response(),
+                None => (
+                    StatusCode::NOT_FOUND,
+                    Html(fallback::render_not_found(&state.config, platform)),
+                )
+                    .into_response(),
+            }
         }
     };
 
-    Ok((status, Html(body)))
+    Ok(response)
 }
 
 fn header_str(headers: &HeaderMap, name: axum::http::HeaderName) -> Option<String> {

@@ -150,7 +150,7 @@ Misconfiguration fails loudly at startup.
 |----------|-------|
 | `TELEPORTA_IOS_TEAM_ID` | Apple Team ID, e.g. `ABCDE12345`. |
 | `TELEPORTA_IOS_BUNDLE_ID` | e.g. `com.example.app`. |
-| `TELEPORTA_IOS_APP_STORE_URL` | Offered on the fallback page when the app isn't installed. |
+| `TELEPORTA_IOS_APP_STORE_URL` | iOS store fallback for links without their own `ios_store_url`; also offered on the fallback page. |
 
 ### Android app association (optional — omit to disable the assetlinks endpoint)
 
@@ -158,7 +158,7 @@ Misconfiguration fails loudly at startup.
 |----------|-------|
 | `TELEPORTA_ANDROID_PACKAGE_NAME` | e.g. `com.example.app`. |
 | `TELEPORTA_ANDROID_SHA256_CERT_FINGERPRINTS` | Comma-separated. Use the Play **app signing** key fingerprint(s). |
-| `TELEPORTA_ANDROID_PLAY_STORE_URL` | Offered on the fallback page when the app isn't installed. |
+| `TELEPORTA_ANDROID_PLAY_STORE_URL` | Android store fallback for links without their own `android_store_url`; also offered on the fallback page. |
 
 ### Database
 
@@ -193,6 +193,7 @@ Misconfiguration fails loudly at startup.
 |----------|---------|-------|
 | `TELEPORTA_FALLBACK_AUTO_REDIRECT_TO_STORE` | `false` | Auto-redirect to the chosen destination. |
 | `TELEPORTA_FALLBACK_AUTO_REDIRECT_DELAY_MS` | `500` | Delay before auto-redirect. |
+| `TELEPORTA_FALLBACK_HOME_URL` | — | Canonical site for unresolved links. When set, unknown paths `302`-redirect here instead of rendering the not-found page. |
 | `TELEPORTA_PRIVACY_STORE_RAW_IP` | `false` | Store the raw client IP. |
 | `TELEPORTA_PRIVACY_HASH_IP` | `true` | Store a salted IP hash. |
 | `TELEPORTA_PRIVACY_IP_HASH_SALT` | `change-me` | **Override this.** Warned at startup if left default. |

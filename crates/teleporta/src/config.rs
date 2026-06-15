@@ -74,6 +74,9 @@ pub struct FallbackConfig {
     pub auto_redirect_to_store: bool,
     /// Delay before the auto-redirect fires, in milliseconds.
     pub auto_redirect_delay: Duration,
+    /// Canonical site users are sent to when a path does not resolve. When set,
+    /// unknown paths 302-redirect here instead of rendering the not-found page.
+    pub home_url: Option<String>,
 }
 
 /// Postgres connection-pool tunables.
@@ -261,6 +264,7 @@ fn parse_fallback_config() -> anyhow::Result<FallbackConfig> {
     Ok(FallbackConfig {
         auto_redirect_to_store,
         auto_redirect_delay: Duration::from_millis(delay_ms),
+        home_url: opt_env("TELEPORTA_FALLBACK_HOME_URL"),
     })
 }
 
@@ -515,6 +519,7 @@ mod tests {
         "TELEPORTA_PRIVACY_STORE_RAW_IP",
         "TELEPORTA_PRIVACY_HASH_IP",
         "TELEPORTA_FALLBACK_AUTO_REDIRECT_TO_STORE",
+        "TELEPORTA_FALLBACK_HOME_URL",
     ];
 
     fn clear() {
