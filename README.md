@@ -103,10 +103,54 @@ Migrations are embedded in the binary and run automatically at startup.
 | Route | Purpose |
 |-------|---------|
 | `GET /*` | Resolve a link path and render the fallback page |
+| `POST /v1/links` | Create a link (admin) |
+| `GET /v1/links` | List links, filter by `route_type` / `is_active`, page with `limit` / `offset` (admin) |
+| `GET /v1/links/*path` | Fetch one link by path (admin) |
+| `PUT /v1/links/*path` | Replace a link's mutable fields (admin) |
+| `DELETE /v1/links/*path` | Delete a link (admin) |
 | `GET /.well-known/apple-app-site-association` | iOS Universal Links verification (if iOS is configured) |
 | `GET /.well-known/assetlinks.json` | Android App Links verification (if Android is configured) |
 | `GET /healthz` | Liveness probe |
 | `GET /readyz` | Readiness probe (checks Postgres) |
+
+Every request (except the health probes) is logged with a per-request span
+carrying the method, URI, and an `x-request-id` (generated when the client
+doesn't supply one and echoed back on the response), e.g.:
+
+```text
+INFO request{method=GET uri=/v1/links request_id=43211e5c-df4a-42e4-a1cd-a5245467a1b6}: tower_http::trace::on_response: finished processing request latency=56 ms status=200
+```
+
+### Admin API
+
+The `/v1/links` endpoints are the write side — link *resolution* (`GET /*`)
+never touches them. A link is addressed by its normalized path; because paths
+contain slashes, single-resource routes capture the rest of the URL
+(`DELETE /v1/links/v/123456` deletes the link whose path is `/v/123456`).
+Creating a duplicate path returns `409 Conflict`; missing links return `404`.
+Writes invalidate the Redis cache for the affected path so changes take effect
+immediately.
+
+> These endpoints mutate routing for the whole deployment and are **not**
+> authenticated by Teleporta. Expose them only on a trusted network or behind an
+> authenticating reverse proxy.
+
+```bash
+# Create
+curl -sX POST http://localhost:8080/v1/links \
+  -H 'content-type: application/json' \
+  -d '{"path":"/v/123456","route_type":"vehicle","web_fallback_url":"https://example.com/v/123456"}'
+
+# List (vehicles only)
+curl -s 'http://localhost:8080/v1/links?route_type=vehicle&limit=20'
+
+# Fetch / replace / delete one
+curl -s     http://localhost:8080/v1/links/v/123456
+curl -sX PUT http://localhost:8080/v1/links/v/123456 \
+  -H 'content-type: application/json' \
+  -d '{"route_type":"vehicle","is_active":false}'
+curl -sX DELETE http://localhost:8080/v1/links/v/123456
+```
 
 ## Link model
 

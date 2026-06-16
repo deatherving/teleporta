@@ -14,6 +14,8 @@ pub enum AppError {
     NotFound,
     #[error("bad request: {0}")]
     BadRequest(String),
+    #[error("conflict: {0}")]
+    Conflict(String),
     #[error(transparent)]
     Sqlx(#[from] sqlx::Error),
     #[error("internal error: {0}")]
@@ -25,6 +27,7 @@ impl IntoResponse for AppError {
         let (status, code) = match &self {
             AppError::NotFound => (StatusCode::NOT_FOUND, "not_found"),
             AppError::BadRequest(_) => (StatusCode::BAD_REQUEST, "bad_request"),
+            AppError::Conflict(_) => (StatusCode::CONFLICT, "conflict"),
             AppError::Sqlx(_) | AppError::Internal(_) => {
                 tracing::error!(error = %self, "internal error");
                 (StatusCode::INTERNAL_SERVER_ERROR, "internal_error")

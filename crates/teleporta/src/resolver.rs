@@ -19,11 +19,18 @@ use crate::Link;
 use crate::cache::Cache;
 use crate::error::AppResult;
 
+/// The full `links` column list, in a fixed order shared by the resolver and
+/// the admin CRUD API so every `SELECT`/`RETURNING` projection stays in lockstep
+/// with [`LinkRow`].
+pub(crate) const LINK_COLUMNS: &str =
+    "id, path, route_type, web_fallback_url, ios_store_url, android_store_url, \
+     metadata, is_active, expires_at, created_by, created_at, updated_at";
+
 /// Database row shape for the `links` table. Kept separate from
 /// [`crate::Link`] so the domain model stays free of any sqlx dependency;
 /// the columns are identical and the conversion is mechanical.
 #[derive(sqlx::FromRow)]
-struct LinkRow {
+pub(crate) struct LinkRow {
     id: Uuid,
     path: String,
     route_type: String,
@@ -82,11 +89,9 @@ pub async fn resolve(
     }
 
     // 3. Source of truth.
-    let row = sqlx::query_as::<_, LinkRow>(
-        "SELECT id, path, route_type, web_fallback_url, ios_store_url, android_store_url, \
-                metadata, is_active, expires_at, created_by, created_at, updated_at \
-         FROM links WHERE path = $1",
-    )
+    let row = sqlx::query_as::<_, LinkRow>(&format!(
+        "SELECT {LINK_COLUMNS} FROM links WHERE path = $1"
+    ))
     .bind(path)
     .fetch_optional(pool)
     .await?;
